@@ -44,6 +44,9 @@ myConfig =
   , ("M-<Space>", spawn "rofi -show combi")
   , ("M-e", spawn "emacsclient -c")
   , ("M-C-<Return>", spawn "emacsclient -c")
+  , ("<F11>", spawn "amixer set Master 5%-")
+  , ("<F12>", spawn "amixer set Master 5%+")
+  , ("<F10>", spawn "amixer set Master 0%")
   ]
 
   
@@ -89,8 +92,8 @@ myXmobarPP =
     { ppSep = white " | "
     , ppTitleSanitize = xmobarStrip
     , ppCurrent = wrap " " "" . xmobarBorder "Top" "#bd93f9" 2
-    , ppHidden = white . wrap " " ""
-    , ppHiddenNoWindows = lowWhite . wrap " " ""
+    , ppHidden = wrap " " "" . white
+    , ppHiddenNoWindows = wrap " " "" . lowWhite
     , ppUrgent = red . wrap (yellow "!") (yellow "!")
     , ppOrder = \[ws, _, _, wins] -> [ws, wins]
     , ppExtras = [logTitles formatFocused formatUnfocused]
@@ -98,8 +101,10 @@ myXmobarPP =
   where
     -- formatFocused = wrap (white "[") (white "]") . blue . ppWindow
     -- formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . lowWhite . ppWindow
-    formatFocused = wrap (white "") (white "") . blue . ppWindow
-    formatUnfocused = wrap (lowWhite "") (lowWhite "") . lowWhite . ppWindow
+    -- formatFocused = wrap (white "") (white "") . blue . ppWindow
+    -- formatUnfocused = wrap (lowWhite "") (lowWhite "") . lowWhite . ppWindow
+    formatFocused = wrap "" "" . xmobarBorder "Full" "#222222" 4 . xmobarColor "#000000" "#bd93f9" . wrap " " " " . ppWindow
+    formatUnfocused = wrap "" "" . xmobarBorder "Full" "#222222" 4 . lowWhite . wrap " " " " . ppWindow
     -- | Windows should have *some* title, which should not not exceed a
     -- sane length.
     ppWindow :: String -> String
@@ -109,7 +114,7 @@ myXmobarPP =
          if null w
            then "untitled"
            else w) .
-      shorten 10
+      shorten' "~" 10
     blue, lowWhite, magenta, red, white, yellow :: String -> String
     magenta = xmobarColor "#ff79c6" ""
     blue = xmobarColor "#bd93f9" ""
