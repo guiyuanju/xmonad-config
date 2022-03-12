@@ -42,11 +42,12 @@ myConfig =
   , ("M-S-=", unGrab *> spawn "scrot -s")
   , ("M-b", spawn "firefox")
   , ("M-<Space>", spawn "rofi -show combi")
+  , ("M-S-<Space>", sendMessage NextLayout)
   , ("M-e", spawn "emacsclient -c")
   , ("M-C-<Return>", spawn "emacsclient -c")
-  , ("<F11>", spawn "amixer set Master 5%-")
-  , ("<F12>", spawn "amixer set Master 5%+")
-  , ("<F10>", spawn "amixer set Master 0%")
+  , ("<F11>", spawn "pamixer -d 5")
+  , ("<F12>", spawn "pamixer -i 5")
+  , ("<F10>", spawn "pamixer -t")
   ]
 
   
@@ -59,14 +60,14 @@ myManageHook = composeAll
 
 myStartupHook = do
   -- spawnOnce "trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --width 10 --transparent false --tint 0x5f5f5f --height 43"
-  spawnOnce "xsetroot -cursor_name left_ptr"
-  spawnOnce "xscreensaver -no-splash"
+  spawnOnce "xsetroot -cursor_name left_ptr &"
+  spawnOnce "xscreensaver -no-splash &"
   -- spawnOnce "xfce4-power-manager"
   -- spawnOnce "nm-applet --sm-disable"
-  spawnOnce "feh --bg-scale /usr/share/backgrounds/wallpapers-2018/mountains-1412683.jpg"
-  spawnOnce "redshift -l 35.60843:139.68874"
-  spawnOnce "picom"
-  spawnOnce "emacs --daemon"
+  spawnOnce "feh --bg-scale /usr/share/backgrounds/wallpapers-2018/mountains-1412683.jpg &"
+  spawnOnce "redshift -l 35.60843:139.68874 &"
+  spawnOnce "picom &"
+  spawnOnce "emacs --daemon &"
   -- spawnOnce "syncthingtray"
 
 mySpacing = spacingRaw False            -- False=Apply even when single window
@@ -77,13 +78,16 @@ mySpacing = spacingRaw False            -- False=Apply even when single window
                        True             -- Enable window borders
   
   
-myLayout = mySpacing $ tiled ||| Mirror tiled ||| Full ||| threeCol
+myLayout = mySpacing $ tiled
+  -- ||| Mirror tiled
+  ||| Full
+  -- ||| threeCol
   where
     threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta ratio
     tiled = Tall nmaster delta ratio
     nmaster = 1 -- number of master pane
-    ratio = 1/2 -- master pane size
-    delta = 3/100 -- resize percentage
+    ratio = 1 / 2 -- master pane size
+    delta = 3 / 100 -- resize percentage
 
     
 myXmobarPP :: PP
