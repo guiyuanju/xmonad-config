@@ -32,6 +32,7 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Layout.NoBorders
 import qualified XMonad.Actions.CycleWS as CWS
 import XMonad.Actions.GroupNavigation
+import XMonad.Hooks.RefocusLast
 -- import XMonad.Layout.Simplest
 -- bar
 import XMonad.Hooks.DynamicLog
@@ -67,15 +68,17 @@ myConfig =
     , manageHook = myManageHook
     , workspaces = myWorkspaces
     -- , logHook = myLogHook xmobars >> historyHook
-    , logHook = historyHook
+    , logHook = refocusLastLogHook >> nsHideOnFocusLoss myScratchpads >> historyHook -- enable hiding for all of @myScratchpads@
+    -- , logHook = historyHook
     } `additionalKeysP`
   myKeybindings
 
 myKeybindings =
   [ ("M-S-z", spawn "xscreensaver-command -lock")
-  , ("M-S-=", unGrab *> spawn "scrot -s")
+  , ("M-C-1", unGrab *> spawn "scrot '/home/las/Downloads/%Y-%m-%d_$wx$h.jpg' -s -q 50")
   , ("M-b", spawn "firefox")
   , ("M-<Space>", spawn "rofi -show combi")
+  , ("M-d", spawn "ulauncher-toggle")
   , ("M-p", spawn "cmd.clj")
   , ("M-S-<Space>", sendMessage NextLayout)
   , ("M-e", spawn "emacsclient -c")
@@ -86,8 +89,8 @@ myKeybindings =
   , ("M-m", windows W.focusMaster)
   , ("M-;", withFocused hideWindow)
   , ("M-S-;", popOldestHiddenWindow)
-  , ("M-a", sendMessage MirrorShrink)
-  , ("M-z", sendMessage MirrorExpand)
+  -- , ("M-a", sendMessage MirrorShrink)
+  -- , ("M-z", sendMessage MirrorExpand)
   , ("M-f", withFocused (sendMessage . maximizeRestore))
   -- , ("M-S-e", spawn "emacsclient --eval  \"(emacs-everywhere)\"")
   -- , ("M-<Space>", shellPrompt myXPConfig)
@@ -98,7 +101,8 @@ myKeybindings =
   -- , ("M-S-'", withFocused (delTag "drawer") >> windows W.focusMaster)
   , ("M-x", namedScratchpadAction myScratchpads "note")
   -- , ("M-x", namedScratchpadAction myScratchpads "note")
-  , ("M-t", namedScratchpadAction myScratchpads "terminal")
+  , ("M-z", namedScratchpadAction myScratchpads "terminal")
+  , ("M-c", namedScratchpadAction myScratchpads "time-tracking")
   , ("M-S-t", withFocused $ windows . W.sink)
   , ("M-<Right>", CWS.nextWS)
   , ("M-<Left>", CWS.prevWS)
@@ -170,6 +174,11 @@ myScratchpads =
       (myTerminal ++ " -t scratchpad")
       (title =? "scratchpad")
       bigFloatCentered
+  , NS
+      "time-tracking"
+      "clockify"
+      (className =? "Clockify")
+      bigFloatCentered
   ]
   where
     bigFloatCentered = customFloating $ W.RationalRect l t w h
@@ -191,6 +200,7 @@ myStartupHook = do
   spawnOnce "picom &"
   spawnOnce "emacs --daemon &"
   spawnOnce "fcitx5 &"
+  spawnOnce "ulauncher"
   -- spawnOnce "flashfocus &" -- need flashfocus and picom to be installed
   -- spawnOnce "syncthingtray"
 
